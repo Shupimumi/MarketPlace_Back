@@ -2,11 +2,15 @@ package com.home.marketplace.controllers;
 
 import com.home.marketplace.assemblers.GoodEntityModelAssembler;
 import com.home.marketplace.controllers.exceptions.GoodNotFoundException;
-import com.home.marketplace.db.repositories.GoodsRepository;
 import com.home.marketplace.db.entities.GoodEntity;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
+import jakarta.persistence.PersistenceContext;
+import jakarta.transaction.Transactional;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.IanaLinkRelations;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,63 +21,72 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 public class GoodsController {
-    private final GoodsRepository goodsRepository;
+    @PersistenceContext
+    private EntityManager entityManager;
+
     private final GoodEntityModelAssembler assembler;
 
-    GoodsController(GoodsRepository goodsRepository, GoodEntityModelAssembler assembler){
-        this.goodsRepository = goodsRepository;
+    GoodsController(GoodEntityModelAssembler assembler) {
         this.assembler = assembler;
     }
 
     @GetMapping("/goods")
-    public CollectionModel<EntityModel<GoodEntity>> all(){
-        List<EntityModel<GoodEntity>> goods = goodsRepository.findAll().stream()
+    public ResponseEntity<?> all() {
+        List<EntityModel<GoodEntity>> goods = entityManager
+                .createQuery("FROM GoodEntity", GoodEntity.class)
+                .getResultStream()
                 .map(assembler::toModel)
                 .toList();
-
-        return CollectionModel.of(goods, linkTo(methodOn(GoodsController.class).all()).withSelfRel());
+        return new ResponseEntity<>(CollectionModel.of(goods, linkTo(methodOn(GoodsController.class).all()).withSelfRel()), HttpStatus.OK);
     }
 
     @PostMapping("/goods")
-    ResponseEntity<?> newGood(@RequestBody GoodEntity goodEntity){
-        EntityModel<GoodEntity> goodEntityModel = assembler.toModel(goodsRepository.save(goodEntity));
-
+    @Transactional
+    public ResponseEntity<?> newGood(@RequestBody GoodEntity goodEntity) {
+        entityManager.persist(goodEntity);
         return ResponseEntity
-                .created(goodEntityModel.getRequiredLink(IanaLinkRelations.SELF).toUri())
-                .body(goodEntityModel);
+                .created(assembler.toModel(goodEntity).getRequiredLink(IanaLinkRelations.SELF).toUri())
+                .body(assembler.toModel(goodEntity));
     }
 
     @GetMapping("/goods/{id}")
-    public EntityModel<GoodEntity> one(@PathVariable Long id){
-        GoodEntity goodEntity = goodsRepository.findById(id)
-                .orElseThrow(() -> new GoodNotFoundException(id));
-
-        return assembler.toModel(goodEntity);
+    public ResponseEntity<?> one(@PathVariable Long id) {
+        try {
+            GoodEntity goodEntity = entityManager.createQuery("SELECT g FROM GoodEntity g WHERE g.id = :id", GoodEntity.class)
+                    .setParameter("id", id)
+                    .getSingleResult();
+            return new ResponseEntity<>(assembler.toModel(goodEntity), HttpStatus.OK);
+        } catch (NoResultException error) {
+            throw new GoodNotFoundException(id);
+        }
     }
 
     @PutMapping("/goods/{id}")
-    ResponseEntity<?> replaceGood(@RequestBody GoodEntity newGood, @PathVariable Long id){
-        GoodEntity updatedGoodEntity = goodsRepository.findById(id)
-                .map(goodEntity -> {
-                    goodEntity.setName(newGood.getName());
-                    goodEntity.setCost(newGood.getCost());
-                    return goodsRepository.save(goodEntity);
-                })
-                .orElseGet(() -> {
-                    return goodsRepository.save(newGood);
-                });
+    @Transactional
+    public ResponseEntity<?> replaceGood(@RequestBody GoodEntity newGood, @PathVariable Long id) {
+        try {
+            GoodEntity oldGoodEntity = entityManager.find(GoodEntity.class, id);
+            newGood.setId(oldGoodEntity.getId());
+            entityManager.merge(newGood);
+            EntityModel<GoodEntity> goodEntityModel = assembler.toModel(newGood);
 
-        EntityModel<GoodEntity> goodEntityModel = assembler.toModel(updatedGoodEntity);
-
-        return ResponseEntity
-                .created(goodEntityModel.getRequiredLink(IanaLinkRelations.SELF).toUri())
-                .body(goodEntityModel);
+            return ResponseEntity
+                    .created(goodEntityModel.getRequiredLink(IanaLinkRelations.SELF).toUri())
+                    .body(goodEntityModel);
+        } catch (NullPointerException error) {
+            throw new GoodNotFoundException(id);
+        }
     }
 
     @DeleteMapping("/goods/{id}")
-    ResponseEntity<?> deleteGood(@PathVariable Long id){
-        goodsRepository.deleteById(id);
-        return ResponseEntity.noContent().build();
+    @Transactional
+    public ResponseEntity<?> deleteGood(@PathVariable Long id) {
+        try {
+            GoodEntity goodEntity = entityManager.find(GoodEntity.class, id);
+            entityManager.remove(goodEntity);
+            return ResponseEntity.noContent().build();
+        } catch (IllegalArgumentException error) {
+            throw new GoodNotFoundException(id);
+        }
     }
-
 }

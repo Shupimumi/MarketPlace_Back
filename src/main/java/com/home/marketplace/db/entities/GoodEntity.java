@@ -1,11 +1,15 @@
 package com.home.marketplace.db.entities;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.util.Objects;
 
 
+@Setter
+@Getter
 @Entity
 @Table(name = "goods")
 public class GoodEntity {
@@ -32,46 +36,14 @@ public class GoodEntity {
         this.cost = cost;
     }
 
-    public Long getId() {
-        return this.id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     public String getName() {
         return this.preName + " " + this.postName;
-    }
-
-    public String getPreName() {
-        return this.preName;
-    }
-
-    public String getPostName() {
-        return this.postName;
-    }
-
-    public void setPreName(String preName) {
-        this.preName = preName;
-    }
-
-    public void setPostName(String postName) {
-        this.postName = postName;
-    }
-
-    public BigDecimal getCost() {
-        return this.cost;
     }
 
     public void setName(String name) {
         String[] parts = name.split(" ");
         this.preName = parts[0];
         this.postName = parts[1];
-    }
-
-    public void setCost(BigDecimal cost) {
-        this.cost = cost;
     }
 
     @Override
