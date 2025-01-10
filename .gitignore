@@ -31,3 +31,12 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Java
+*.jar
+*.war
+*.ear
+
+node/
+node_modules/
+*.exe
