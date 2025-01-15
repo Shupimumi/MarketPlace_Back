@@ -7,6 +7,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.IanaLinkRelations;
@@ -26,6 +27,7 @@ public class GoodsController {
 
     private final GoodEntityModelAssembler assembler;
 
+    @Autowired
     GoodsController(GoodEntityModelAssembler assembler) {
         this.assembler = assembler;
     }
