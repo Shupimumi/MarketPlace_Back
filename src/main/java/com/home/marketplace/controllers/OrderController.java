@@ -1,6 +1,7 @@
 package com.home.marketplace.controllers;
 
 import com.home.marketplace.db.entities.OrderEntity;
+import com.home.marketplace.db.entities.controllerdto.CreateOrderBody;
 import com.home.marketplace.services.OrderService;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
@@ -27,11 +28,11 @@ public class OrderController {
         return orderService.getOneOrder(id);
     }
 
-    /*@PostMapping("/orders")
-    ResponseEntity<EntityModel<OrderEntity>> newOrder(@RequestBody OrderEntity order) {
-        return orderService.newOrder(order);
-    }*/
-
+    @PostMapping("/orders")
+    ResponseEntity<EntityModel<OrderEntity>> newOrder(@RequestBody CreateOrderBody order) {
+        return orderService.newOrder(order.getGoodsId(), order.getDescription());
+    }
+    
     @DeleteMapping("/orders/{id}/cancel")
     public ResponseEntity<?> cancel(@PathVariable Long id) {
         return orderService.cancelOrder(id);

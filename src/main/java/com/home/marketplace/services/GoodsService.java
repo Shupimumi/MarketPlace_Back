@@ -4,6 +4,7 @@ import com.home.marketplace.assemblers.GoodEntityModelAssembler;
 import com.home.marketplace.controllers.GoodsController;
 import com.home.marketplace.controllers.exceptions.GoodNotFoundException;
 import com.home.marketplace.db.entities.GoodEntity;
+import com.home.marketplace.db.repositories.GoodsRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
@@ -24,9 +25,11 @@ public class GoodsService {
     EntityManager entityManager;
 
     private final GoodEntityModelAssembler assembler;
+    private final GoodsRepository goodsRepository;
 
-    GoodsService(GoodEntityModelAssembler assembler) {
+    GoodsService(GoodsRepository goodsRepository, GoodEntityModelAssembler assembler) {
         this.assembler = assembler;
+        this.goodsRepository = goodsRepository;
     }
 
     public ResponseEntity<?> getAllGoods() {
@@ -36,6 +39,10 @@ public class GoodsService {
                 .map(assembler::toModel)
                 .toList();
         return new ResponseEntity<>(CollectionModel.of(goods, linkTo(methodOn(GoodsController.class).all()).withSelfRel()), HttpStatus.OK);
+    }
+
+    public List<GoodEntity> getAllGoodsById(List<Long> ids) {
+        return goodsRepository.findAllById(ids);
     }
 
     public GoodEntity getOneGood(Long id) {

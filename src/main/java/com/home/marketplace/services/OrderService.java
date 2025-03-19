@@ -2,10 +2,14 @@ package com.home.marketplace.services;
 
 import com.home.marketplace.assemblers.OrderModelAssembler;
 import com.home.marketplace.controllers.OrderController;
+import com.home.marketplace.controllers.exceptions.GoodsForOrderNotFoundException;
 import com.home.marketplace.controllers.exceptions.OrderNotFoundException;
+import com.home.marketplace.db.entities.GoodEntity;
 import com.home.marketplace.db.entities.OrderEntity;
 import com.home.marketplace.db.repositories.OrderRepository;
 import com.home.marketplace.enums.Status;
+import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.MediaTypes;
@@ -21,6 +25,7 @@ import java.util.stream.Collectors;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
+@Slf4j
 @Service
 public class OrderService {
 
@@ -50,11 +55,21 @@ public class OrderService {
         return assembler.toModel(order);
     }
 
-    public ResponseEntity<EntityModel<OrderEntity>> newOrder(List<Long> goodsId, String description) {
-        for (Long id : goodsId) {
-            goodsService.getOneGood(id);
+    @Transactional
+    public ResponseEntity<EntityModel<OrderEntity>> newOrder(List<Long> goodsIds, String description) {
+        List<GoodEntity> goods = goodsService.getAllGoodsById(goodsIds);
+        if (goods.isEmpty()) {
+            throw new GoodsForOrderNotFoundException();
         }
-        OrderEntity order = new OrderEntity(description, Status.IN_PROGRESS);
+        var goodEntitiesIds = goods.stream().map(GoodEntity::getId).toList();
+        var missedIds = goodsIds.stream().filter(id -> !goodEntitiesIds.contains(id)).toList();
+        if (!missedIds.isEmpty()) {
+            throw new GoodsForOrderNotFoundException();
+        }
+        OrderEntity order = new OrderEntity();
+        order.setStatus(Status.IN_PROGRESS);
+        order.setDescription(description);
+        order.setGoods(goods);
         OrderEntity newOrder = orderRepository.save(order);
 
         return ResponseEntity

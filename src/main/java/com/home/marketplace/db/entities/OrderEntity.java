@@ -4,6 +4,7 @@ import com.home.marketplace.enums.Status;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -21,14 +22,15 @@ public class OrderEntity {
     private Status status;
 
     @OneToMany(mappedBy = "order")
-    private List<GoodEntity> goods;
+    private List<GoodEntity> goods = new ArrayList<>();
 
-    OrderEntity() {
+    public OrderEntity() {
     }
 
-    public OrderEntity(String description, Status status) {
+    public OrderEntity(String description, Status status, List<GoodEntity> goods) {
         this.description = description;
         this.status = status;
+        this.goods.addAll(goods != null ? goods : new ArrayList<>());
     }
 
 
