@@ -1,55 +1,38 @@
 package com.home.marketplace.db.entities;
 
 import com.home.marketplace.enums.Status;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+import lombok.Data;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
 @Table(name = "CUSTOMER_ORDER")
+@Data
 public class OrderEntity {
 
     private @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
+    @Column(name = "description")
     private String description;
+    @Column(name = "status")
     private Status status;
 
-    OrderEntity() {
+    @OneToMany(mappedBy = "order")
+    private List<GoodEntity> goods = new ArrayList<>();
+
+    public OrderEntity() {
     }
 
-    public OrderEntity(String description, Status status) {
+    public OrderEntity(String description, Status status, List<GoodEntity> goods) {
         this.description = description;
         this.status = status;
+        this.goods.addAll(goods != null ? goods : new ArrayList<>());
     }
 
-
-    public Long getId() {
-        return this.id;
-    }
-
-    public String getDescription() {
-        return this.description;
-    }
-
-    public Status getStatus() {
-        return this.status;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public void setStatus(Status status) {
-        this.status = status;
-    }
 
     @Override
     public boolean equals(Object o) {

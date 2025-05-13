@@ -1,17 +1,14 @@
 package com.home.marketplace.db.entities;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
 import java.math.BigDecimal;
 import java.util.Objects;
 
-
-@Setter
-@Getter
 @Entity
-@Table(name = "goods")
+@Table(name = "GOOD")
+@Data
 public class GoodEntity {
 
     private @Id
@@ -26,6 +23,10 @@ public class GoodEntity {
 
     @Column(name = "cost")
     private BigDecimal cost;
+
+    @ManyToOne
+    @JoinColumn(name = "order_id")
+    private OrderEntity order;
 
     GoodEntity() {
     }
