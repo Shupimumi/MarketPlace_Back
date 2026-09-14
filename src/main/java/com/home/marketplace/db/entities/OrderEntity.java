@@ -1,10 +1,7 @@
 package com.home.marketplace.db.entities;
 
 import com.home.marketplace.enums.Status;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 import java.util.Objects;
 
@@ -16,6 +13,7 @@ public class OrderEntity {
     @GeneratedValue
     Long id;
     private String description;
+    @Enumerated(EnumType.STRING)
     private Status status;
 
     OrderEntity() {
