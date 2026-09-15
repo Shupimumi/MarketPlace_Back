@@ -13,4 +13,9 @@ public class GlobalExceptionHandler {
         ErrorResponse errorResponse = new ErrorResponse("GOOD_NOT_FOUND", exception.getMessage());
         return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
     }
+    @ExceptionHandler(GoodsForOrderNotFoundException.class)
+    public static ResponseEntity<Object> goodsForOrderNotFoundException(GoodsForOrderNotFoundException exception) {
+        ErrorResponse errorResponse = new ErrorResponse("GOODS_FOR_ORDER_NOT_FOUND", exception.getMessage());
+        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+    }
 }
