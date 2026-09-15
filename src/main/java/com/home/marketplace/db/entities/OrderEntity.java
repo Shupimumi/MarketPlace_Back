@@ -19,6 +19,7 @@ public class OrderEntity {
     @Column(name = "description")
     private String description;
     @Column(name = "status")
+    @Enumerated(EnumType.STRING)
     private Status status;
 
     @OneToMany(mappedBy = "order")
