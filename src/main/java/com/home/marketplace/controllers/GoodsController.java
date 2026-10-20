@@ -1,7 +1,7 @@
 package com.home.marketplace.controllers;
 
 import com.home.marketplace.assemblers.GoodEntityModelAssembler;
-import com.home.marketplace.db.entities.GoodEntity;
+import com.home.marketplace.db.entities.Good;
 import com.home.marketplace.services.GoodsService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -33,8 +33,8 @@ public class GoodsController {
 
     @PostMapping("/goods")
     @Transactional
-    public ResponseEntity<?> newGood(@RequestBody GoodEntity goodEntity) {
-        GoodEntity createdGood = goodsService.createNewGood(goodEntity);
+    public ResponseEntity<?> newGood(@RequestBody Good good) {
+        Good createdGood = goodsService.createNewGood(good);
         return ResponseEntity
                 .created(assembler.toModel(createdGood).getRequiredLink(IanaLinkRelations.SELF).toUri())
                 .body(assembler.toModel(createdGood));
@@ -47,8 +47,8 @@ public class GoodsController {
 
     @PutMapping("/goods/{id}")
     @Transactional
-    public ResponseEntity<?> replaceGood(@RequestBody GoodEntity newGood, @PathVariable Long id) {
-        EntityModel<GoodEntity> goodEntityModel = assembler.toModel(goodsService.updateGood(id, newGood));
+    public ResponseEntity<?> replaceGood(@RequestBody Good newGood, @PathVariable Long id) {
+        EntityModel<Good> goodEntityModel = assembler.toModel(goodsService.updateGood(id, newGood));
         return ResponseEntity
                 .created(goodEntityModel.getRequiredLink(IanaLinkRelations.SELF).toUri())
                 .body(goodEntityModel);

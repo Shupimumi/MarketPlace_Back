@@ -6,7 +6,7 @@ import lombok.Data;
 @Entity
 @Table(name = "CLIENT")
 @Data
-public class ClientEntity {
+public class Client {
     private @Id
     @GeneratedValue
     Long id;
@@ -17,7 +17,7 @@ public class ClientEntity {
     @Column(name = "address")
     private String address;
 
-    public ClientEntity(String name, String surname, String address) {
+    public Client(String name, String surname, String address) {
         this.name = name;
         this.surname = surname;
         this.address = address;

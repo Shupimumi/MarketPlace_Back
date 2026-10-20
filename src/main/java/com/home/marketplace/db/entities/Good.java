@@ -9,7 +9,7 @@ import java.util.Objects;
 @Entity
 @Table(name = "GOOD")
 @Data
-public class GoodEntity {
+public class Good {
 
     private @Id
     @GeneratedValue
@@ -26,12 +26,12 @@ public class GoodEntity {
 
     @ManyToOne
     @JoinColumn(name = "order_id")
-    private OrderEntity order;
+    private Order order;
 
-    GoodEntity() {
+    Good() {
     }
 
-    public GoodEntity(String preName, String postName, BigDecimal cost) {
+    public Good(String preName, String postName, BigDecimal cost) {
         this.preName = preName;
         this.postName = postName;
         this.cost = cost;
@@ -57,12 +57,12 @@ public class GoodEntity {
 
         if (this == o)
             return true;
-        if (!(o instanceof GoodEntity goodEntity))
+        if (!(o instanceof Good good))
             return false;
-        return Objects.equals(this.id, goodEntity.id)
-                && Objects.equals(this.preName, goodEntity.preName)
-                && Objects.equals(this.postName, goodEntity.postName)
-                && Objects.equals(this.cost, goodEntity.cost);
+        return Objects.equals(this.id, good.id)
+                && Objects.equals(this.preName, good.preName)
+                && Objects.equals(this.postName, good.postName)
+                && Objects.equals(this.cost, good.cost);
     }
 
     @Override

@@ -11,7 +11,7 @@ import java.util.Objects;
 @Entity
 @Table(name = "CUSTOMER_ORDER")
 @Data
-public class OrderEntity {
+public class Order {
 
     private @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,12 +23,12 @@ public class OrderEntity {
     private Status status;
 
     @OneToMany(mappedBy = "order")
-    private List<GoodEntity> goods = new ArrayList<>();
+    private List<Good> goods = new ArrayList<>();
 
-    public OrderEntity() {
+    public Order() {
     }
 
-    public OrderEntity(String description, Status status, List<GoodEntity> goods) {
+    public Order(String description, Status status, List<Good> goods) {
         this.description = description;
         this.status = status;
         this.goods.addAll(goods != null ? goods : new ArrayList<>());
@@ -40,7 +40,7 @@ public class OrderEntity {
 
         if (this == o)
             return true;
-        if (!(o instanceof OrderEntity order))
+        if (!(o instanceof Order order))
             return false;
         return Objects.equals(this.id, order.id) && Objects.equals(this.description, order.description)
                 && this.status == order.status;

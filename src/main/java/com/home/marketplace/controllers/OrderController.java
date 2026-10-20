@@ -1,6 +1,6 @@
 package com.home.marketplace.controllers;
 
-import com.home.marketplace.db.entities.OrderEntity;
+import com.home.marketplace.db.entities.Order;
 import com.home.marketplace.db.entities.controllerdto.CreateOrderBody;
 import com.home.marketplace.services.OrderService;
 import org.springframework.hateoas.CollectionModel;
@@ -19,17 +19,17 @@ public class OrderController {
     }
 
     @GetMapping("/orders")
-    public CollectionModel<EntityModel<OrderEntity>> all() {
+    public CollectionModel<EntityModel<Order>> all() {
         return orderService.getAllOrders();
     }
 
     @GetMapping("/orders/{id}")
-    public EntityModel<OrderEntity> one(@PathVariable Long id) {
+    public EntityModel<Order> one(@PathVariable Long id) {
         return orderService.getOneOrder(id);
     }
 
     @PostMapping("/orders")
-    ResponseEntity<EntityModel<OrderEntity>> newOrder(@RequestBody CreateOrderBody order) {
+    ResponseEntity<EntityModel<Order>> newOrder(@RequestBody CreateOrderBody order) {
         return orderService.newOrder(order.getGoodsId(), order.getDescription());
     }
     

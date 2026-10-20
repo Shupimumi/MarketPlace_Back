@@ -1,7 +1,7 @@
 package com.home.marketplace.db.repositories;
 
-import com.home.marketplace.db.entities.OrderEntity;
+import com.home.marketplace.db.entities.Order;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface OrderRepository extends JpaRepository<OrderEntity, Long> {
+public interface OrderRepository extends JpaRepository<Order, Long> {
 }

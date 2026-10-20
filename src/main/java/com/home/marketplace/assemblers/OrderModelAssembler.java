@@ -1,7 +1,7 @@
 package com.home.marketplace.assemblers;
 
 import com.home.marketplace.controllers.OrderController;
-import com.home.marketplace.db.entities.OrderEntity;
+import com.home.marketplace.db.entities.Order;
 import com.home.marketplace.enums.Status;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.server.RepresentationModelAssembler;
@@ -11,13 +11,13 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Component
-public class OrderModelAssembler implements RepresentationModelAssembler<OrderEntity, EntityModel<OrderEntity>> {
+public class OrderModelAssembler implements RepresentationModelAssembler<Order, EntityModel<Order>> {
 
     @Override
-    public EntityModel<OrderEntity> toModel(OrderEntity order) {
+    public EntityModel<Order> toModel(Order order) {
         // Unconditional links to single-item resource and aggregate root
 
-        EntityModel<OrderEntity> orderModel = EntityModel.of(order,
+        EntityModel<Order> orderModel = EntityModel.of(order,
                 linkTo(methodOn(OrderController.class).one(order.getId())).withSelfRel(),
                 linkTo(methodOn(OrderController.class).all()).withRel("orders"));
 

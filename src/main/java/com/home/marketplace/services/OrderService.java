@@ -4,8 +4,8 @@ import com.home.marketplace.assemblers.OrderModelAssembler;
 import com.home.marketplace.controllers.OrderController;
 import com.home.marketplace.controllers.exceptions.GoodsForOrderNotFoundException;
 import com.home.marketplace.controllers.exceptions.OrderNotFoundException;
-import com.home.marketplace.db.entities.GoodEntity;
-import com.home.marketplace.db.entities.OrderEntity;
+import com.home.marketplace.db.entities.Good;
+import com.home.marketplace.db.entities.Order;
 import com.home.marketplace.db.repositories.OrderRepository;
 import com.home.marketplace.enums.Status;
 import jakarta.transaction.Transactional;
@@ -39,8 +39,8 @@ public class OrderService {
         this.assembler = assembler;
     }
 
-    public CollectionModel<EntityModel<OrderEntity>> getAllOrders() {
-        List<EntityModel<OrderEntity>> orders = orderRepository.findAll().stream()
+    public CollectionModel<EntityModel<Order>> getAllOrders() {
+        List<EntityModel<Order>> orders = orderRepository.findAll().stream()
                 .map(assembler::toModel)
                 .collect(Collectors.toList());
 
@@ -48,29 +48,29 @@ public class OrderService {
                 linkTo(methodOn(OrderController.class).all()).withSelfRel());
     }
 
-    public EntityModel<OrderEntity> getOneOrder(Long id) {
-        OrderEntity order = orderRepository.findById(id)
+    public EntityModel<Order> getOneOrder(Long id) {
+        Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new OrderNotFoundException(id));
 
         return assembler.toModel(order);
     }
 
     @Transactional
-    public ResponseEntity<EntityModel<OrderEntity>> newOrder(List<Long> goodsIds, String description) {
-        List<GoodEntity> goods = goodsService.getAllGoodsById(goodsIds);
+    public ResponseEntity<EntityModel<Order>> newOrder(List<Long> goodsIds, String description) {
+        List<Good> goods = goodsService.getAllGoodsById(goodsIds);
         if (goods.isEmpty()) {
             throw new GoodsForOrderNotFoundException();
         }
-        var goodEntitiesIds = goods.stream().map(GoodEntity::getId).toList();
+        var goodEntitiesIds = goods.stream().map(Good::getId).toList();
         var missedIds = goodsIds.stream().filter(id -> !goodEntitiesIds.contains(id)).toList();
         if (!missedIds.isEmpty()) {
             throw new GoodsForOrderNotFoundException();
         }
-        OrderEntity order = new OrderEntity();
+        Order order = new Order();
         order.setStatus(Status.IN_PROGRESS);
         order.setDescription(description);
         order.setGoods(goods);
-        OrderEntity newOrder = orderRepository.save(order);
+        Order newOrder = orderRepository.save(order);
 
         return ResponseEntity
                 .created(linkTo(methodOn(OrderController.class).one(newOrder.getId())).toUri())
@@ -79,7 +79,7 @@ public class OrderService {
 
     public ResponseEntity<?> cancelOrder(Long id) {
 
-        OrderEntity order = orderRepository.findById(id)
+        Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new OrderNotFoundException(id));
 
         if (order.getStatus() == Status.IN_PROGRESS) {
@@ -97,7 +97,7 @@ public class OrderService {
 
     public ResponseEntity<?> completeOrder(Long id) {
 
-        OrderEntity order = orderRepository.findById(id)
+        Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new OrderNotFoundException(id));
 
         if (order.getStatus() == Status.IN_PROGRESS) {
