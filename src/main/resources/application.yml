@@ -1,0 +1,21 @@
+spring:
+  config:
+    import: "optional:file:.env[.properties]"
+  application:
+    name: marketplace
+  datasource:
+    url: jdbc:postgresql://localhost:5432/marketplace
+    username: postgres
+    password: ${POSTGRES_PASS}
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:9090/realms/Oauth
+web:
+  front:
+    url: http://localhost:3000
