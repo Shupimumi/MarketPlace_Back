@@ -30,7 +30,7 @@ erDiagram
         varchar address
     }
 
-    %% ===== order =====
+    %% ===== customerOrder =====
     CART {
         bigint id PK
         bigint client_id UK "только id → client (1:1)"
@@ -66,7 +66,7 @@ erDiagram
     PAYMENT {
         bigint    id PK
         bigint    account_id FK
-        bigint    order_id UK "только id → order; (?) UNIQUE = 1:1"
+        bigint    order_id UK "только id → customerOrder; (?) UNIQUE = 1:1"
         numeric   amount
         varchar   status
         timestamp created_at
