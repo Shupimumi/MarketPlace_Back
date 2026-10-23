@@ -3,6 +3,9 @@ package com.home.marketplace.db.entities;
 import com.home.marketplace.enums.Status;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,12 +13,14 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "CUSTOMER_ORDER")
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
 public class CustomerOrder {
 
-    private @Id
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
+    private Long id;
     @Column(name = "description")
     private String description;
     @Column(name = "status")

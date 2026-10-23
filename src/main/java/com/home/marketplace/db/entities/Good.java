@@ -1,29 +1,28 @@
 package com.home.marketplace.db.entities;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 
 @Entity
 @Table(name = "GOOD")
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
 public class Good {
 
-    private @Id
+    @Id
     @GeneratedValue
-    Long id;
-
+    private Long id;
     @Column(name = "preName")
     private String preName;
-
     @Column(name = "postName")
     private String postName;
-
     @Column(name = "cost")
     private BigDecimal cost;
-
-    @ManyToOne
-    @JoinColumn(name = "order_id")
-    private CustomerOrder customerOrder;
+    @Column(name = "customer_order_id")
+    private Long customerOrderId;
 }
