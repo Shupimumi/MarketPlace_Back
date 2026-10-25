@@ -7,7 +7,7 @@ import com.home.marketplace.controllers.exceptions.OrderNotFoundException;
 import com.home.marketplace.db.entities.CustomerOrder;
 import com.home.marketplace.db.entities.Good;
 import com.home.marketplace.db.repositories.OrderRepository;
-import com.home.marketplace.enums.Status;
+import com.home.marketplace.enums.OrderStatus;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.hateoas.CollectionModel;
@@ -67,7 +67,7 @@ public class OrderService {
             throw new GoodsForOrderNotFoundException();
         }
         CustomerOrder customerOrder = new CustomerOrder();
-        customerOrder.setStatus(Status.IN_PROGRESS);
+        customerOrder.setOrderStatus(OrderStatus.IN_PROGRESS);
         customerOrder.setDescription(description);
         customerOrder.setGoods(goods);
         CustomerOrder newCustomerOrder = orderRepository.save(customerOrder);
@@ -82,8 +82,8 @@ public class OrderService {
         CustomerOrder customerOrder = orderRepository.findById(id)
                 .orElseThrow(() -> new OrderNotFoundException(id));
 
-        if (customerOrder.getStatus() == Status.IN_PROGRESS) {
-            customerOrder.setStatus(Status.CANCELLED);
+        if (customerOrder.getOrderStatus() == OrderStatus.IN_PROGRESS) {
+            customerOrder.setOrderStatus(OrderStatus.CANCELLED);
             return ResponseEntity.ok(assembler.toModel(orderRepository.save(customerOrder)));
         }
 
@@ -92,7 +92,7 @@ public class OrderService {
                 .header(HttpHeaders.CONTENT_TYPE, MediaTypes.HTTP_PROBLEM_DETAILS_JSON_VALUE)
                 .body(Problem.create()
                         .withTitle("Method not allowed")
-                        .withDetail("You can't cancel an order that is in the " + customerOrder.getStatus() + " status"));
+                        .withDetail("You can't cancel an order that is in the " + customerOrder.getOrderStatus() + " status"));
     }
 
     public ResponseEntity<?> completeOrder(Long id) {
@@ -100,8 +100,8 @@ public class OrderService {
         CustomerOrder customerOrder = orderRepository.findById(id)
                 .orElseThrow(() -> new OrderNotFoundException(id));
 
-        if (customerOrder.getStatus() == Status.IN_PROGRESS) {
-            customerOrder.setStatus(Status.COMPLETED);
+        if (customerOrder.getOrderStatus() == OrderStatus.IN_PROGRESS) {
+            customerOrder.setOrderStatus(OrderStatus.COMPLETED);
             return ResponseEntity.ok(assembler.toModel(orderRepository.save(customerOrder)));
         }
 
@@ -110,6 +110,6 @@ public class OrderService {
                 .header(HttpHeaders.CONTENT_TYPE, MediaTypes.HTTP_PROBLEM_DETAILS_JSON_VALUE)
                 .body(Problem.create()
                         .withTitle("Method not allowed")
-                        .withDetail("You can't complete an order that is in the " + customerOrder.getStatus() + " status"));
+                        .withDetail("You can't complete an order that is in the " + customerOrder.getOrderStatus() + " status"));
     }
 }

@@ -1,6 +1,6 @@
 package com.home.marketplace.db.entities;
 
-import com.home.marketplace.enums.Status;
+import com.home.marketplace.enums.OrderStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -23,7 +23,7 @@ public class CustomerOrder {
     private String description;
     @Column(name = "status", nullable = false)
     @Enumerated(EnumType.STRING)
-    private Status status;
+    private OrderStatus orderStatus;
 
     @Column(name = "client_id", nullable = false)
     private Long clientId;

@@ -2,7 +2,7 @@ package com.home.marketplace.assemblers;
 
 import com.home.marketplace.controllers.OrderController;
 import com.home.marketplace.db.entities.CustomerOrder;
-import com.home.marketplace.enums.Status;
+import com.home.marketplace.enums.OrderStatus;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.server.RepresentationModelAssembler;
 import org.springframework.stereotype.Component;
@@ -23,7 +23,7 @@ public class OrderModelAssembler implements RepresentationModelAssembler<Custome
 
         // Conditional links based on state of the order
 
-        if (customerOrder.getStatus() == Status.IN_PROGRESS) {
+        if (customerOrder.getOrderStatus() == OrderStatus.IN_PROGRESS) {
             orderModel.add(linkTo(methodOn(OrderController.class).cancel(customerOrder.getId())).withRel("cancel"));
             orderModel.add(linkTo(methodOn(OrderController.class).complete(customerOrder.getId())).withRel("complete"));
         }
