@@ -15,14 +15,12 @@ import java.math.BigDecimal;
 public class Good {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name = "preName")
-    private String preName;
-    @Column(name = "postName")
-    private String postName;
-    @Column(name = "cost")
+    @Column(name = "full_name", nullable = false)
+    private String fullName;
+    @Column(name = "short_name")
+    private String shortName;
+    @Column(name = "cost", nullable = false)
     private BigDecimal cost;
-    @Column(name = "customer_order_id")
-    private Long customerOrderId;
 }

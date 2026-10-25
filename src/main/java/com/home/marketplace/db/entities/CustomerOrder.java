@@ -2,14 +2,12 @@ package com.home.marketplace.db.entities;
 
 import com.home.marketplace.enums.Status;
 import jakarta.persistence.*;
-import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 @Entity
 @Table(name = "CUSTOMER_ORDER")
@@ -23,10 +21,12 @@ public class CustomerOrder {
     private Long id;
     @Column(name = "description")
     private String description;
-    @Column(name = "status")
+    @Column(name = "status", nullable = false)
     @Enumerated(EnumType.STRING)
     private Status status;
 
-    @OneToMany(mappedBy = "order")
-    private List<Good> goods = new ArrayList<>();
+    @Column(name = "client_id", nullable = false)
+    private Long clientId;
+    @OneToMany(mappedBy = "customerOrder", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CustomerOrderItem> customerOrderItems = new ArrayList<>();
 }
