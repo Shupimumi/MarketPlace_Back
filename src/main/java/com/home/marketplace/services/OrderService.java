@@ -4,10 +4,10 @@ import com.home.marketplace.assemblers.OrderModelAssembler;
 import com.home.marketplace.controllers.OrderController;
 import com.home.marketplace.controllers.exceptions.GoodsForOrderNotFoundException;
 import com.home.marketplace.controllers.exceptions.OrderNotFoundException;
-import com.home.marketplace.db.entities.GoodEntity;
-import com.home.marketplace.db.entities.OrderEntity;
+import com.home.marketplace.db.entities.CustomerOrder;
+import com.home.marketplace.db.entities.Good;
 import com.home.marketplace.db.repositories.OrderRepository;
-import com.home.marketplace.enums.Status;
+import com.home.marketplace.enums.OrderStatus;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.hateoas.CollectionModel;
@@ -39,8 +39,8 @@ public class OrderService {
         this.assembler = assembler;
     }
 
-    public CollectionModel<EntityModel<OrderEntity>> getAllOrders() {
-        List<EntityModel<OrderEntity>> orders = orderRepository.findAll().stream()
+    public CollectionModel<EntityModel<CustomerOrder>> getAllOrders() {
+        List<EntityModel<CustomerOrder>> orders = orderRepository.findAll().stream()
                 .map(assembler::toModel)
                 .collect(Collectors.toList());
 
@@ -48,43 +48,43 @@ public class OrderService {
                 linkTo(methodOn(OrderController.class).all()).withSelfRel());
     }
 
-    public EntityModel<OrderEntity> getOneOrder(Long id) {
-        OrderEntity order = orderRepository.findById(id)
+    public EntityModel<CustomerOrder> getOneOrder(Long id) {
+        CustomerOrder customerOrder = orderRepository.findById(id)
                 .orElseThrow(() -> new OrderNotFoundException(id));
 
-        return assembler.toModel(order);
+        return assembler.toModel(customerOrder);
     }
 
     @Transactional
-    public ResponseEntity<EntityModel<OrderEntity>> newOrder(List<Long> goodsIds, String description) {
-        List<GoodEntity> goods = goodsService.getAllGoodsById(goodsIds);
+    public ResponseEntity<EntityModel<CustomerOrder>> newOrder(List<Long> goodsIds, String description) {
+        List<Good> goods = goodsService.getAllGoodsById(goodsIds);
         if (goods.isEmpty()) {
             throw new GoodsForOrderNotFoundException();
         }
-        var goodEntitiesIds = goods.stream().map(GoodEntity::getId).toList();
+        var goodEntitiesIds = goods.stream().map(Good::getId).toList();
         var missedIds = goodsIds.stream().filter(id -> !goodEntitiesIds.contains(id)).toList();
         if (!missedIds.isEmpty()) {
             throw new GoodsForOrderNotFoundException();
         }
-        OrderEntity order = new OrderEntity();
-        order.setStatus(Status.IN_PROGRESS);
-        order.setDescription(description);
-        order.setGoods(goods);
-        OrderEntity newOrder = orderRepository.save(order);
+        CustomerOrder customerOrder = new CustomerOrder();
+        customerOrder.setOrderStatus(OrderStatus.IN_PROGRESS);
+        customerOrder.setDescription(description);
+        customerOrder.setGoods(goods);
+        CustomerOrder newCustomerOrder = orderRepository.save(customerOrder);
 
         return ResponseEntity
-                .created(linkTo(methodOn(OrderController.class).one(newOrder.getId())).toUri())
-                .body(assembler.toModel(newOrder));
+                .created(linkTo(methodOn(OrderController.class).one(newCustomerOrder.getId())).toUri())
+                .body(assembler.toModel(newCustomerOrder));
     }
 
     public ResponseEntity<?> cancelOrder(Long id) {
 
-        OrderEntity order = orderRepository.findById(id)
+        CustomerOrder customerOrder = orderRepository.findById(id)
                 .orElseThrow(() -> new OrderNotFoundException(id));
 
-        if (order.getStatus() == Status.IN_PROGRESS) {
-            order.setStatus(Status.CANCELLED);
-            return ResponseEntity.ok(assembler.toModel(orderRepository.save(order)));
+        if (customerOrder.getOrderStatus() == OrderStatus.IN_PROGRESS) {
+            customerOrder.setOrderStatus(OrderStatus.CANCELLED);
+            return ResponseEntity.ok(assembler.toModel(orderRepository.save(customerOrder)));
         }
 
         return ResponseEntity
@@ -92,17 +92,17 @@ public class OrderService {
                 .header(HttpHeaders.CONTENT_TYPE, MediaTypes.HTTP_PROBLEM_DETAILS_JSON_VALUE)
                 .body(Problem.create()
                         .withTitle("Method not allowed")
-                        .withDetail("You can't cancel an order that is in the " + order.getStatus() + " status"));
+                        .withDetail("You can't cancel an order that is in the " + customerOrder.getOrderStatus() + " status"));
     }
 
     public ResponseEntity<?> completeOrder(Long id) {
 
-        OrderEntity order = orderRepository.findById(id)
+        CustomerOrder customerOrder = orderRepository.findById(id)
                 .orElseThrow(() -> new OrderNotFoundException(id));
 
-        if (order.getStatus() == Status.IN_PROGRESS) {
-            order.setStatus(Status.COMPLETED);
-            return ResponseEntity.ok(assembler.toModel(orderRepository.save(order)));
+        if (customerOrder.getOrderStatus() == OrderStatus.IN_PROGRESS) {
+            customerOrder.setOrderStatus(OrderStatus.COMPLETED);
+            return ResponseEntity.ok(assembler.toModel(orderRepository.save(customerOrder)));
         }
 
         return ResponseEntity
@@ -110,6 +110,6 @@ public class OrderService {
                 .header(HttpHeaders.CONTENT_TYPE, MediaTypes.HTTP_PROBLEM_DETAILS_JSON_VALUE)
                 .body(Problem.create()
                         .withTitle("Method not allowed")
-                        .withDetail("You can't complete an order that is in the " + order.getStatus() + " status"));
+                        .withDetail("You can't complete an order that is in the " + customerOrder.getOrderStatus() + " status"));
     }
 }
